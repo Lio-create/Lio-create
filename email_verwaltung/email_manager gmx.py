@@ -15,6 +15,7 @@ Setup:
         GMAIL_APP_PASSWORT=dein-app-passwort
 """
 
+import time
 import os
 import imaplib
 import email
@@ -25,10 +26,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-EMAIL_ACCOUNT = "fcbjungs@gmail.com"
-APP_PASSWORT = os.getenv("GMAIL_APP_PASSWORT")
+EMAIL_ACCOUNT = "fabian_rene.foerster@gmx.de"
+APP_PASSWORT_GMX = os.getenv("GMX_APP_PASSWORT")
 
-ANZAHL_MAILS = 100  # Wie viele der neuesten Mails geprüft werden sollen
+ANZAHL_MAILS = 100 # Wie viele der neuesten Mails geprüft werden sollen
 
 # Absender/Personen, die NIE verschoben werden (bleiben in der Inbox)
 WICHTIGE_ABSENDER = [
@@ -47,14 +48,53 @@ KATEGORIE_REGELN = {
     "pandora": "Shopping",
     "temu": "Shopping",
     "shein": "Shopping",
+    "open-mind market": "Shopping",
+    "openmind.market": "Shopping",
+    "klarna": "Shopping",
+    "nyx": "Shopping",
+    "mcdonald": "Shopping",
+    "shell": "Shopping",
+    "itunes": "Shopping",
+    "zasta": "Shopping",
+    "3-fpo": "Shopping",
+    "eis-de": "Shopping",
 
-    # Jobsuche
+    # Versand/Lieferung
+    "dhl": "Versand",
+    "go3000": "Versand",
+    "lieferschein": "Versand",
+
+    # Jobsuche (Jobangebote / Job-Alerts)
     "stepstone": "Jobangebote",
     "linkedin": "Jobangebote",
     "alerts für stellenangebote": "Jobangebote",
     "zety": "Jobangebote",
     "pagepersonnel": "Jobangebote",
     "cadenas": "Jobangebote",
+    "eos gmbh": "Jobangebote",
+    "ferchau": "Jobangebote",
+    "it-support": "Jobangebote",
+    "fachinformatiker": "Jobangebote",
+
+    # Bewerbungen - dein aktiver Bewerbungsprozess
+    "bewerbung": "Bewerbungen",
+    "recruiting": "Bewerbungen",
+    "vorstellungsgespräch": "Bewerbungen",
+    "videointerview": "Bewerbungen",
+    "telefoninterview": "Bewerbungen",
+    "arbeitsvertrag": "Bewerbungen",
+    "bundesagentur für arbeit": "Bewerbungen",
+    "akkodis": "Bewerbungen",
+    "dis ag": "Bewerbungen",
+    "hemmersbach": "Bewerbungen",
+    "knds": "Bewerbungen",
+
+    # Rechnungen / Zahlungen
+    "zahlung erhalten": "Rechnungen",
+    "zahlungserinnerung": "Rechnungen",
+    "rechnung": "Rechnungen",
+    "easyfitness": "Rechnungen",
+    "finion capital": "Rechnungen",
 
     # Gaming
     "ubisoft": "Gaming",
@@ -71,6 +111,8 @@ KATEGORIE_REGELN = {
     "skinsmonkey": "Gaming",
     "geoguessr": "Gaming",
     "glyph": "Gaming",
+    "ea-spiele": "Gaming",
+    "ea-sicherheitscode": "Gaming",
 
     # Streaming
     "netflix": "Streaming",
@@ -78,6 +120,7 @@ KATEGORIE_REGELN = {
     "primevideo": "Streaming",
     "soundcloud": "Streaming",
     "soundtrap": "Streaming",
+    "tagesschau": "Streaming",
 
     # Konto & Sicherheit
     "google": "Konto-Sicherheit",
@@ -87,10 +130,16 @@ KATEGORIE_REGELN = {
     "n26": "Konto-Sicherheit",
     "reddit": "Konto-Sicherheit",
     "mediafire": "Konto-Sicherheit",
+    "teamviewer": "Konto-Sicherheit",
+    "gmx sicherheitshinweis": "Konto-Sicherheit",
+    "new device logged in": "Konto-Sicherheit",
+    "claude.ai": "Konto-Sicherheit",
 
     # Social
     "snapchat": "Social",
     "fiverr": "Social",
+    "instagram": "Social",
+    "vũ thị lợi": "Social",
 
     # Kleinanzeigen
     "kleinanzeigen": "Kleinanzeigen",
@@ -101,6 +150,8 @@ KATEGORIE_REGELN = {
     "lovable": "Tools",
     "openai": "Tools",
     "gitkraken": "Tools",
+    "use ai": "Tools",
+    "use.ai": "Tools",
 
     # Marketing / Werbung
     "copecart": "Werbung",
@@ -109,8 +160,18 @@ KATEGORIE_REGELN = {
     "stake.us": "Werbung",
     "cryptobrowser": "Werbung",
     "macadam": "Werbung",
-}
+    "gratiswette": "Werbung",
+    "wm26": "Werbung",
+    "wm 2026": "Werbung",
 
+    # Wichtig/Persönlich (Rechnungen, Verträge, Inkasso)
+    "inkasso": "Wichtig",
+    "lastschrift": "Wichtig",
+    "überweisung": "Wichtig",
+    "leb april": "Wichtig",
+    "edln": "Wichtig",
+    "mobilfunknummer": "Wichtig",
+}
 # ----------------- HILFSFUNKTIONEN -----------------
 
 def decode_str(s):
@@ -137,12 +198,13 @@ def ensure_folder_exists(mail, folder_name):
 # ----------------- HAUPTPROGRAMM -----------------
 
 def main():
-    if not APP_PASSWORT:
+    if not APP_PASSWORT_GMX:
         print("FEHLER: Kein App-Passwort gefunden. .env-Datei prüfen!")
         return
 
-    mail = imaplib.IMAP4_SSL("imap.gmail.com")
-    mail.login(EMAIL_ACCOUNT, APP_PASSWORT)
+# Für GMX:
+    mail = imaplib.IMAP4_SSL("imap.gmx.net")
+    mail.login(EMAIL_ACCOUNT, APP_PASSWORT_GMX)
     mail.select("inbox")
 
     status, data = mail.search(None, "ALL")
@@ -188,13 +250,13 @@ def main():
             ensure_folder_exists(mail, kategorie)
             mail.copy(num, kategorie)
             mail.store(num, "+FLAGS", "\\Deleted")
+            mail.expunge()  # sofort ausführen
             print(f"Verschoben nach '{kategorie}': {betreff[:50]}")
             verschoben_count += 1
+            time.sleep(1)
         else:
-            print(f"Keine Kategorie für: {betreff[:50]}")
-            keine_kategorie_count += 1
+            continue
 
-    mail.expunge()
     mail.logout()
 
     print("\n--- Zusammenfassung ---")
