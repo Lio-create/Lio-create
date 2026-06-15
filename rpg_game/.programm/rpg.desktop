@@ -1,0 +1,6 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Mein RPG
+Exec=python3 /srv/share/code/Lio-create/rpg_game/create_char.py
+Terminal=true
