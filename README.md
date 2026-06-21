@@ -1,6 +1,14 @@
-## Hi there 👋
+Hey, 
 
-<!--
+iam trying to learn some python for personal ideas.
+
+and with AI iam building some webseites. 
+
+you can rate everything, thanks for all testing :)
+
+Best Regards 
+Lio
+
 **Lio-create/Lio-create** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
 
 Here are some ideas to get you started:
@@ -13,4 +21,4 @@ Here are some ideas to get you started:
 - 📫 How to reach me: ...
 - 😄 Pronouns: ...
 - ⚡ Fun fact: ...
--->
+
